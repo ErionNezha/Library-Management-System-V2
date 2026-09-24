@@ -1,0 +1,74 @@
+<!-- Created by Erion Nezha — © 2026 All rights reserved -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📖 Library Management System — Web Port</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0b0f14;color:#e6e6e6;font-family:'Consolas','Courier New',monospace;min-height:100vh;display:flex;flex-direction:column}
+header.top{background:linear-gradient(135deg,#101820,#1b2a3a);padding:18px 20px;text-align:center;border-bottom:2px solid #00d4ff33}
+header.top h1{font-size:1.25rem;color:#fff}
+header.top p{color:#9fb3c8;font-size:.82rem;margin-top:6px}
+.wrap{flex:1;max-width:900px;width:100%;margin:0 auto;padding:18px;display:flex;flex-direction:column}
+.term{background:#05070b;border:1px solid #00d4ff33;border-radius:10px;padding:16px;height:60vh;overflow-y:auto;white-space:pre-wrap;font-size:.92rem;line-height:1.6;color:#c8ffb0}
+.inrow{display:flex;align-items:center;gap:8px;margin-top:10px;background:#05070b;border:1px solid #00d4ff55;border-radius:8px;padding:10px 14px}
+.inrow .prompt{color:#00d4ff;font-weight:700}
+.inrow input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-family:inherit;font-size:.95rem}
+footer{text-align:center;padding:14px;color:#5c6b7f;font-size:.85rem;border-top:1px solid #ffffff10}
+footer strong{color:#9fb3c8}
+</style>
+</head>
+<body>
+<header class="top"><h1>📖 Library Management System</h1><p>Web port of libraryMS.c — the classic C console library program, simulated in your browser.</p></header>
+<div class="wrap"><div class="term" id="term"></div>
+<div class="inrow"><span class="prompt">&rsaquo;</span><input id="inp" autocomplete="off" spellcheck="false" placeholder="Type here and press Enter…"></div></div>
+<footer>Krijuar nga <strong>Erion Nezha</strong> — © 2026</footer>
+<script>
+const termEl=document.getElementById('term'),inp=document.getElementById('inp');
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function print(t){termEl.innerHTML+=esc(t)+'\n';termEl.scrollTop=termEl.scrollHeight;}
+function ask(q){return new Promise(function(res){print(q);inp.focus();function h(e){if(e.key==='Enter'){inp.removeEventListener('keydown',h);var v=inp.value;inp.value='';print('> '+v);res(v.trim());}}inp.addEventListener('keydown',h);});}
+function pause(){return new Promise(function(r){setTimeout(r,250);});}
+window.addEventListener('load',function(){main();});
+
+var books=[];
+async function main(){
+  print('*** Library Management System (web port of libraryMS.c) ***');
+  while(true){
+    print('\n\n1. Add book information\n2. Display book information');
+    print('3. List all books of given author\n4. List the title of specified book');
+    print('5. List the count of books in the library\n6. Exit');
+    var j=await ask('\nEnter one of the above : ');
+    if(j==='1'){
+      var b={};
+      b.bookName=await ask('Enter book name = ');
+      b.author=await ask('Enter author name = ');
+      b.pages=parseInt(await ask('Enter pages = '),10)||0;
+      b.price=parseFloat(await ask('Enter price = '))||0;
+      books.push(b);
+      print('Book added. Total books: '+books.length);
+    }else if(j==='2'){
+      if(!books.length){print('No books in the library yet.');continue;}
+      books.forEach(function(b,i){print('Book '+(i+1)+': '+b.bookName+', '+b.author+', '+b.pages+' pages, $'+b.price.toFixed(2));});
+    }else if(j==='3'){
+      var a=await ask('Enter author name = ');
+      var f=books.filter(function(b){return b.author.toLowerCase()===a.toLowerCase();});
+      if(!f.length)print('No books found for author "'+a+'".');
+      f.forEach(function(b){print('- '+b.bookName+' ('+b.pages+' pages, $'+b.price.toFixed(2)+')');});
+    }else if(j==='4'){
+      var n=await ask('Enter book name = ');
+      var f=books.filter(function(b){return b.bookName.toLowerCase()===n.toLowerCase();});
+      if(!f.length)print('Book "'+n+'" not found.');
+      f.forEach(function(b){print('Title: '+b.bookName+' | Author: '+b.author);});
+    }else if(j==='5'){
+      print('The count of books in the library: '+books.length);
+    }else if(j==='6'){
+      print('Exiting... Thank you!');break;
+    }else{print('Invalid choice. Please enter 1-6.');}
+  }
+}
+</script>
+</body>
+</html>
